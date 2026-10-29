@@ -629,6 +629,16 @@
         @media(min-width:520px){#page-auth{padding-top:22px}.auth-shell{padding:29px 28px}.auth-hero{margin:-29px -28px 25px;padding:32px 28px 29px}}
         @media(max-width:360px){.auth-shell{padding:21px 17px;border-radius:24px}.auth-hero{margin:-21px -17px 20px;padding:25px 18px}.auth-brand-name{font-size:23px}.auth-hero h1{font-size:23px}.auth-benefits span{font-size:9px;padding:7px 8px}}
 
+
+        /* Bouton de téléchargement de l'application Android */
+        .greenback-download-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;margin:0 0 20px;border:1px solid #0b86b8;border-radius:17px;background:linear-gradient(120deg,#063b68,#078eb4 68%,#11b5b0);color:#fff;text-decoration:none;box-shadow:0 8px 22px rgba(7,112,157,.2)}
+        .greenback-download-icon{width:46px;height:46px;flex:0 0 46px;border-radius:14px;display:grid;place-items:center;background:#ffffff24;border:1px solid #ffffff55;font-size:22px}
+        .greenback-download-copy{flex:1;min-width:0}
+        .greenback-download-title{display:block;font-size:14px;font-weight:900;line-height:1.3}
+        .greenback-download-subtitle{display:block;font-size:11px;line-height:1.4;opacity:.88;margin-top:4px}
+        .greenback-download-action{white-space:nowrap;border-radius:10px;background:#fff;color:#075985;padding:10px 11px;font-size:11px;font-weight:900}
+        .greenback-download-card:active{transform:scale(.99)}
+        @media(max-width:360px){.greenback-download-card{gap:9px;padding:12px}.greenback-download-icon{width:40px;height:40px;flex-basis:40px}.greenback-download-action{padding:9px 8px;font-size:10px}}
     </style>
 
 <style id="greenback-airtel-method-style">
@@ -709,6 +719,12 @@
                 <div class="menu-item" onclick="navigateTo('page-missions')"><div class="icon-box"><i class="fa-solid fa-headset"></i></div><span class="menu-label">Service client</span></div>
                 <div class="menu-item" onclick="navigateTo('page-profile')"><div class="icon-box"><i class="fa-solid fa-id-card"></i></div><span class="menu-label">Informations de mon compte</span></div>
             </nav>
+
+            <a class="greenback-download-card" href="https://github.com/RawbankRDC/BLACKSTAR/raw/refs/heads/main/index.apk" download="BLACKSTAR.apk" target="_blank" rel="noopener noreferrer" aria-label="Télécharger l’application Android">
+                <span class="greenback-download-icon"><i class="fa-brands fa-android"></i></span>
+                <span class="greenback-download-copy"><span class="greenback-download-title">Télécharger l’application</span><span class="greenback-download-subtitle">GREENBACK · Android (APK)</span></span>
+                <span class="greenback-download-action"><i class="fa-solid fa-download"></i> Télécharger</span>
+            </a>
 
             <main>
                 <div class="plans-intro">
@@ -1208,6 +1224,11 @@
               </div>
           </section>
 
+          <a class="greenback-download-card" href="https://github.com/RawbankRDC/BLACKSTAR/raw/refs/heads/main/index.apk" download="BLACKSTAR.apk" target="_blank" rel="noopener noreferrer" aria-label="Télécharger l’application Android">
+              <span class="greenback-download-icon"><i class="fa-brands fa-android"></i></span>
+              <span class="greenback-download-copy"><span class="greenback-download-title">Télécharger l’application</span><span class="greenback-download-subtitle">GREENBACK · Android (APK)</span></span>
+              <span class="greenback-download-action"><i class="fa-solid fa-download"></i> Télécharger</span>
+          </a>
           <button class="logout-btn" onclick="profileLogout()"><i class="fa-solid fa-power-off"></i> Se déconnecter</button>
         </div>
 
