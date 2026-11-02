@@ -1299,30 +1299,21 @@
           return {fb,uid:fb.auth.currentUser.uid,...mod};
         }
         async function readDepositHistory(){
-          const {fb,uid,doc,getDoc,collection,getDocs,query,orderBy}=await depositFirebaseContext();
-          // Lecture principale dans la sous-collection privée de l'utilisateur.
-          const snap=await getDocs(query(collection(fb.db,'users',uid,'deposits'),orderBy('createdAt','desc'))).catch(()=>null);
-          if(snap&&!snap.empty)return snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(b.date||b.createdAtISO||'').localeCompare(String(a.date||a.createdAtISO||'')));
-          // Compatibilité avec le panneau admin existant qui lit appData.
-          const safe=btoa(unescape(encodeURIComponent(depositHistoryKey()))).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,180);
-          const legacy=await getDoc(doc(fb.db,'users',uid,'appData',safe));
-          const raw=legacy.exists()?legacy.data().value:'[]';
-          try{return JSON.parse(raw||'[]').sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));}catch(_){return []}
+          const {fb,uid,collection,getDocs,query,orderBy}=await depositFirebaseContext();
+          // Les demandes sont stockées uniquement dans le compte du membre connecté.
+          const snap=await getDocs(query(collection(fb.db,'users',uid,'deposits'),orderBy('createdAt','desc')));
+          return snap.docs.map(d=>({id:d.id,...d.data()}))
+            .sort((a,b)=>String(b.date||b.createdAtISO||'').localeCompare(String(a.date||a.createdAtISO||'')));
         }
         async function saveDepositHistory(items){
-          const {fb,uid,doc,getDoc,setDoc,writeBatch,serverTimestamp}=await depositFirebaseContext();
+          const {fb,uid,doc,getDoc,setDoc,serverTimestamp}=await depositFirebaseContext();
           const item=items[items.length-1];
           if(!item?.id)throw new Error('La demande de dépôt est incomplète.');
-          const batch=writeBatch(fb.db);
           const userDepositRef=doc(fb.db,'users',uid,'deposits',item.id);
-          const globalDepositRef=doc(fb.db,'depositRequests',item.id);
-          const safe=btoa(unescape(encodeURIComponent(depositHistoryKey()))).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,180);
-          const appDataRef=doc(fb.db,'users',uid,'appData',safe);
           const payload={...item,uid,userId:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
-          batch.set(userDepositRef,payload,{merge:true});
-          batch.set(globalDepositRef,payload,{merge:true});
-          batch.set(appDataRef,{key:depositHistoryKey(),value:JSON.stringify(items),updatedAt:serverTimestamp()},{merge:true});
-          await batch.commit();
+          // Ne pas écrire simultanément dans /depositRequests et /appData :
+          // ces chemins globaux/legacy provoquaient un refus si leurs règles sont fermées.
+          await setDoc(userDepositRef,payload,{merge:true});
           const verify=await getDoc(userDepositRef);
           if(!verify.exists())throw new Error('Firebase n’a pas confirmé l’enregistrement du dépôt.');
           return true;
@@ -1345,6 +1336,7 @@
           if(!Number.isFinite(amount)||amount<=0){depositNext(1);return}
           if(!phone||phone.replace(/\D/g,'').length<7){if(finalPhone){finalPhone.focus();showNotification('Veuillez saisir le numéro utilisé pour envoyer votre paiement.')}else{depositNext(2);showNotification('Veuillez saisir le numéro utilisé pour envoyer votre paiement.')}return}
           if(!transactionRef){document.getElementById('depositTransactionRef').focus();showNotification('Entrez le code de transaction pour que nous puissions retrouver votre paiement.');return}
+          if(transactionRef.replace(/\\s/g,'')===phone.replace(/\\s/g,'')){document.getElementById('depositTransactionRef').focus();showNotification('Le Code ID doit être la référence de transaction fournie par Airtel Money, pas le numéro de téléphone.','error');return}
           depositSubmitting=true;
           const oldLabel=button?button.innerHTML:'';
           if(button){button.disabled=true;button.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';}
@@ -1480,45 +1472,41 @@
             empty.style.display = visible ? 'none' : 'block';
         }
 
-        // Équipe Firebase : tout inscrit avec le code du parrain apparaît immédiatement, même sans achat.
+        // Équipe Firebase : annuaire public limité, sans lecture des profils privés des autres membres.
         let selectedTeamLevel = 1; let greenbackTeamMembers = [];
         async function loadGreenbackTeam(){
           const fb=window.GREENBACK_FIREBASE,uid=fb?.auth?.currentUser?.uid;if(!fb||!uid)return;
           try{
             const {collection,getDocs,query,where}=await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js');
-            async function childrenOf(parent){const snap=await getDocs(query(collection(fb.db,'users'),where('referredByUid','==',parent)));return snap.docs.map(d=>({uid:d.id,...d.data()}));}
-            const direct=(await childrenOf(uid)).map(x=>({...x,level:1}));
-            const secondRaw=(await Promise.all(direct.map(x=>childrenOf(x.uid)))).flat();
-            const second=secondRaw.map(x=>({...x,level:2}));
-            const thirdRaw=(await Promise.all(second.map(x=>childrenOf(x.uid)))).flat();
-            const third=thirdRaw.map(x=>({...x,level:3}));
-            greenbackTeamMembers=[...direct,...second,...third];
-            const activeUids=new Set();
-            for(const m of greenbackTeamMembers){
-              m.hasActiveProduct=false; m.commissionReceived=0;
-              try{const ps=await getDocs(collection(fb.db,'users',m.uid,'positions'));if(!ps.empty){activeUids.add(m.uid);m.hasActiveProduct=true}}catch(_){ }
-            }
-            // Somme des commissions réellement créditées dans le compte du membre connecté,
-            // attribuées aux achats de chaque filleul (sourceUid).
+            const snap=await getDocs(query(collection(fb.db,'teamDirectory'),where('ancestorUids','array-contains',uid)));
+            greenbackTeamMembers=snap.docs.map(d=>{
+              const x=d.data()||{},ancestors=Array.isArray(x.ancestorUids)?x.ancestorUids:[];
+              return {...x,uid:d.id,level:ancestors.indexOf(uid)+1,hasActiveProduct:x.isActive===true,commissionReceived:0};
+            }).filter(m=>m.level>=1&&m.level<=3);
+            const activeUids=new Set(greenbackTeamMembers.filter(m=>m.hasActiveProduct).map(m=>m.uid));
+            // Les commissions affichées proviennent uniquement des transactions du compte connecté.
             try{
               const ownTx=await getDocs(collection(fb.db,'users',uid,'transactions'));
               const sums={};
               ownTx.forEach(d=>{const t=d.data()||{};if(t.type==='referral_commission'||t.category==='Revenus équipe'){const src=String(t.sourceUid||'');if(src)sums[src]=(sums[src]||0)+(Number(t.amount)||0);}});
               greenbackTeamMembers.forEach(m=>m.commissionReceived=Math.round((sums[m.uid]||0)*100)/100);
-            }catch(e){console.warn('Lecture des commissions équipe impossible:',e)}
-            const count=(lv)=>greenbackTeamMembers.filter(m=>m.level===lv).length;
-            const active=(lv)=>greenbackTeamMembers.filter(m=>m.level===lv&&activeUids.has(m.uid)).length;
+            }catch(e){console.warn('Lecture des commissions équipe indisponible.');}
+            const count=lv=>greenbackTeamMembers.filter(m=>m.level===lv).length;
+            const active=lv=>greenbackTeamMembers.filter(m=>m.level===lv&&activeUids.has(m.uid)).length;
             const levelCards=document.querySelectorAll('#page-team .level-card');[1,2,3].forEach((lv,i)=>{const card=levelCards[i];if(!card)return;const vals=card.querySelectorAll('.level-stat .val');if(vals[1])vals[1].textContent=count(lv);if(vals[2])vals[2].textContent=active(lv)});
             const totalEl=document.querySelector('#page-team .circle-counter .num');if(totalEl)totalEl.textContent=greenbackTeamMembers.length;
             const stats=document.querySelector('#page-team .network-stats');if(stats)stats.textContent='Actifs '+activeUids.size;
             [1,2,3].forEach(lv=>{const b=document.querySelectorAll('#page-members .tabs-filter-3 .tab-btn')[lv-1];if(b)b.textContent='N'+lv+' · '+count(lv)});
             renderTeamMembers();
-          }catch(e){console.error('Chargement équipe Firebase:',e);showNotification('Impossible de charger l’équipe. Vérifiez les règles Firestore.','error');}
+          }catch(e){
+            console.error('Chargement équipe Firebase:',e);
+            showNotification('Impossible de charger votre équipe pour le moment. Réessayez dans un instant.','error',4500);
+          }
         }
         function renderTeamMembers(){
           const page=document.getElementById('page-members');if(!page)return;
           const q=(document.getElementById('teamMemberSearch')?.value||'').trim().toLowerCase();
-          const list=greenbackTeamMembers.filter(m=>m.level===selectedTeamLevel&&(!q||String(m.name||'').toLowerCase().includes(q)||String(m.phone||'').includes(q)));
+          const list=greenbackTeamMembers.filter(m=>m.level===selectedTeamLevel&&(!q||String(m.name||'').toLowerCase().includes(q)||String(m.memberId||'').includes(q)));
           let box=page.querySelector('.team-members-results');if(!box){box=document.createElement('div');box.className='team-members-results';box.style.cssText='display:grid;gap:10px;margin-top:14px';page.querySelector('.search-box')?.after(box)}
           const empty=page.querySelector('.empty-state');if(empty)empty.style.display=list.length?'none':'block';
           const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1530,7 +1518,7 @@
             const dateValue=m.createdAt?.toDate?m.createdAt.toDate().toLocaleDateString('fr-FR'):String(m.createdAt||m.createdAtISO||'').slice(0,10);
             return '<div class="card-custom team-member-card" style="padding:15px">'+
               '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><strong style="font-size:17px">'+esc(m.name||m.fullName||'Nom non renseigné')+'</strong><span style="padding:5px 9px;border-radius:10px;background:'+statusBg+';color:'+statusColor+';font-size:12px;font-weight:800;white-space:nowrap">'+status+'</span></div>'+
-              '<div style="margin-top:7px;color:var(--text-blue)">📱 '+esc(m.phone||m.phoneNumber||'Numéro non renseigné')+'</div>'+
+              '<div style="margin-top:7px;color:var(--text-blue)">Code membre : '+esc(m.memberId||'—')+'</div>'+
               '<div style="margin-top:4px;color:var(--text-blue);font-size:13px">Inscrit le : '+esc(dateValue||'Date non disponible')+' · Niveau '+m.level+'</div>'+
               '<div style="margin-top:12px;padding:10px;border-radius:12px;background:#f0f8ff;display:flex;justify-content:space-between;gap:8px;align-items:center"><span style="font-weight:700;color:#245b91">Commission reçue sur ce membre</span><strong style="color:#16805d;white-space:nowrap">$'+commission+'</strong></div>'+
               (invested?'<div style="font-size:12px;color:#137547;margin-top:7px">Ce membre a activé au moins un produit.</div>':'<div style="font-size:12px;color:#8a5a00;margin-top:7px">Aucune activation de produit détectée.</div>')+
@@ -1880,7 +1868,8 @@ function showConfirmation(message, title='Confirmation'){
    let msg='Impossible de se connecter à Firebase. Vérifiez la connexion et les règles Firebase.';
    if(err&&err.code==='auth/email-already-in-use')msg='Ce numéro possède déjà un compte. Connectez-vous.';
    else if(err&&['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-email'].includes(err.code))msg='Numéro ou mot de passe incorrect.';
-   else if(err&&err.code==='permission-denied')msg='Accès Firestore refusé. Les règles Firebase doivent autoriser uniquement les données du compte connecté.';
+   else if(err&&err.code==='permission-denied')msg='Inscription momentanément indisponible. Réessayez dans un instant.';
+   else if(err&&typeof err.message==='string'&&err.message)msg=err.message;
    showNotification(msg,'error',6500);
   }finally{button.disabled=false;button.innerHTML=original;}
  };
@@ -1971,13 +1960,36 @@ function showConfirmation(message, title='Confirmation'){
     async function activate(user,phone){window.GREENBACK_STORAGE.setAccount(user.uid,phone,api);await window.GREENBACK_STORAGE.load();const profileRef=doc(db,'users',user.uid,'private','profile');const snap=await getDoc(profileRef);let profile=snap.exists()?snap.data():{};if(!profile.phone){profile={...profile,phone,name:profile.name||user.displayName||'Membre GREENBACK',createdAt:new Date().toISOString(),memberId:String(Math.floor(100000+Math.random()*900000))};await setDoc(profileRef,profile,{merge:true})}await setDoc(doc(db,'users',user.uid),{uid:user.uid,phone:profile.phone||phone,name:profile.name||user.displayName||'Membre GREENBACK',memberId:profile.memberId||'',createdAt:profile.createdAt||new Date().toISOString(),updatedAt:serverTimestamp()},{merge:true});return {...profile,phone:profile.phone||phone};}
     window.GREENBACK_CLOUD_AUTH={
       async register({phone,password,name,referralCode}){
-        const code=String(referralCode||'').trim();let sponsor=null;
-        if(code){const matches=await getDocs(query(collection(db,'users'),where('memberId','==',code)));if(matches.empty)throw new Error('Code de parrainage introuvable. Vérifiez le code ou laissez le champ vide.');sponsor=matches.docs[0];}
+        const code=String(referralCode||'').trim();let sponsorUid=null,sponsorAncestors=[];
+        // Le code est recherché par lecture directe de son document, jamais par requête sur /users.
+        if(code){
+          const codeSnap=await getDoc(doc(db,'referralCodes',code));
+          if(!codeSnap.exists())throw new Error('Ce code de parrainage est introuvable. Vérifiez le code ou laissez le champ vide.');
+          sponsorUid=String(codeSnap.data().uid||'');
+          if(!sponsorUid)throw new Error('Ce code de parrainage n’est pas valide.');
+          const sponsorSnap=await getDoc(doc(db,'teamDirectory',sponsorUid));
+          if(!sponsorSnap.exists())throw new Error('Le code est ancien et doit être actualisé par le support.');
+          sponsorAncestors=Array.isArray(sponsorSnap.data().ancestorUids)?sponsorSnap.data().ancestorUids:[];
+        }
         const cred=await createUserWithEmailAndPassword(auth,emailForPhone(phone),password);await updateProfile(cred.user,{displayName:name});
-        const createdAt=new Date().toISOString(),memberId=String(Math.floor(100000+Math.random()*900000));
-        const profile={uid:cred.user.uid,phone,name,referralCode:memberId,referredByUid:sponsor?sponsor.id:null,referredByCode:code||'',createdAt,memberId};
-        await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,phone,name,createdAt,memberId,referralCode:memberId,referredByUid:profile.referredByUid,referredByCode:profile.referredByCode,updatedAt:serverTimestamp()},{merge:true});
-        await setDoc(doc(db,'users',cred.user.uid,'private','profile'),profile);window.GREENBACK_STORAGE.setAccount(cred.user.uid,phone,api);return profile
+        const createdAt=new Date().toISOString();let memberId='';
+        // Génère un code disponible avant de créer les documents liés au compte.
+        for(let i=0;i<12;i++){
+          const candidate=String(Math.floor(100000+Math.random()*900000));
+          const existing=await getDoc(doc(db,'referralCodes',candidate));
+          if(!existing.exists()){memberId=candidate;break;}
+        }
+        if(!memberId)throw new Error('Impossible de créer votre code membre. Réessayez.');
+        const ancestorUids=sponsorUid?[sponsorUid,...sponsorAncestors]:[];
+        const profile={uid:cred.user.uid,phone,name,referralCode:memberId,referredByUid:sponsorUid,referredByCode:code||'',createdAt,memberId};
+        const {writeBatch}=await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js');
+        const batch=writeBatch(db);
+        batch.set(doc(db,'users',cred.user.uid),{uid:cred.user.uid,phone,name,createdAt,memberId,referralCode:memberId,referredByUid:sponsorUid,referredByCode:code||'',updatedAt:serverTimestamp()});
+        batch.set(doc(db,'users',cred.user.uid,'private','profile'),profile);
+        batch.set(doc(db,'referralCodes',memberId),{uid:cred.user.uid,memberId,createdAt:serverTimestamp()});
+        batch.set(doc(db,'teamDirectory',cred.user.uid),{uid:cred.user.uid,name,memberId,referredByUid:sponsorUid,referredByCode:code||'',ancestorUids,isActive:false,createdAt});
+        await batch.commit();
+        window.GREENBACK_STORAGE.setAccount(cred.user.uid,phone,api);return profile
       },
       async login({phone,password}){const cred=await signInWithEmailAndPassword(auth,emailForPhone(phone),password);return await activate(cred.user,phone)}
     };
