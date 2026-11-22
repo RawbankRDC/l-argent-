@@ -302,7 +302,7 @@ a.action:focus-visible {
 </style>
 </head>
 <body>
-<section class="auth-screen" id="authScreen"><div class="auth-card"><div class="auth-brand"><div class="auth-logo">G</div><h1>KDF</h1><p>BIENVENUE DANS VOTRE ESPACE PERSONNEL</p></div><div class="auth-switch"><button type="button" id="showRegister" class="active" onclick="showAuthForm('register')">Créer un compte</button><button type="button" id="showLogin" onclick="showAuthForm('login')">Se connecter</button></div><div id="authMessage" class="auth-error" role="alert"></div><form id="registerForm" class="auth-form active" onsubmit="registerUser(event)"><label>Nom complet</label><input id="regName" type="text" autocomplete="name" placeholder="Votre nom complet" required maxlength="70"><label>Numéro de téléphone</label><div class="phone-field"><span class="phone-prefix">+243</span><input id="regPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="Votre numéro à 9 chiffres" required maxlength="9" pattern="[0-9]{9}" aria-label="Numéro de téléphone sans indicatif"></div><label>Mot de passe</label><input id="regPassword" type="password" autocomplete="new-password" placeholder="6 caractères minimum" required minlength="6"><label>Confirmer le mot de passe</label><input id="regPassword2" type="password" autocomplete="new-password" placeholder="Confirmez votre mot de passe" required minlength="6"><label>Code de parrainage (optionnel)</label><input id="regReferral" type="text" placeholder="Code de votre parrain"><button class="auth-submit" type="submit"><i class="fa-solid fa-user-plus"></i> Créer mon compte</button></form><form id="loginForm" class="auth-form" onsubmit="loginUser(event)"><label>Numéro de téléphone</label><div class="phone-field"><span class="phone-prefix">+243</span><input id="loginPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="Votre numéro à 9 chiffres" required maxlength="9" pattern="[0-9]{9}" aria-label="Numéro de téléphone sans indicatif"></div><label>Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Saisissez votre mot de passe" required><button class="auth-submit" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</button></form><p class="auth-help"><i class="fa-solid fa-shield-halved"></i> Votre espace personnel est protégé. Connectez-vous avec votre numéro de téléphone et votre mot de passe.</p><p id="firebaseStatus" class="auth-help" style="margin-top:8px;color:#5b7190"><i class="fa-solid fa-shield-halved"></i> Préparation de votre espace personnel…</p></div></section>
+<section class="auth-screen" id="authScreen"><div class="auth-card"><div class="auth-brand"><div class="auth-logo">G</div><h1>KDF</h1><p>BIENVENUE DANS VOTRE ESPACE PERSONNEL</p></div><div class="auth-switch"><button type="button" id="showRegister" class="active" onclick="showAuthForm('register')">Créer un compte</button><button type="button" id="showLogin" onclick="showAuthForm('login')">Se connecter</button></div><div id="authMessage" class="auth-error" role="alert"></div><form id="registerForm" class="auth-form active" onsubmit="registerUser(event)"><label>Nom complet</label><input id="regName" type="text" autocomplete="name" placeholder="Votre nom complet" required maxlength="70"><label>Numéro de téléphone</label><label>Pays</label><select id="regCountry" onchange="countryChanged('register')"><option value="CD">République démocratique du Congo</option><option value="BJ">Bénin</option><option value="CM">Cameroun</option><option value="BF">Burkina Faso</option><option value="CI">Côte d’Ivoire</option><option value="GA">Gabon</option><option value="SN">Sénégal</option><option value="RW">Rwanda</option><option value="TG">Togo</option></select><div class="phone-field"><span class="phone-prefix" id="regPrefix">+243</span><input id="regPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="Votre numéro de téléphone" required maxlength="15" inputmode="numeric" aria-label="Numéro de téléphone sans indicatif"></div><label>Mot de passe</label><input id="regPassword" type="password" autocomplete="new-password" placeholder="6 caractères minimum" required minlength="6"><label>Confirmer le mot de passe</label><input id="regPassword2" type="password" autocomplete="new-password" placeholder="Confirmez votre mot de passe" required minlength="6"><label>Code de parrainage (optionnel)</label><input id="regReferral" type="text" placeholder="Code de votre parrain"><button class="auth-submit" type="submit"><i class="fa-solid fa-user-plus"></i> Créer mon compte</button></form><form id="loginForm" class="auth-form" onsubmit="loginUser(event)"><label>Numéro de téléphone</label><label>Pays</label><select id="loginCountry" onchange="countryChanged('login')"><option value="CD">République démocratique du Congo</option><option value="BJ">Bénin</option><option value="CM">Cameroun</option><option value="BF">Burkina Faso</option><option value="CI">Côte d’Ivoire</option><option value="GA">Gabon</option><option value="SN">Sénégal</option><option value="RW">Rwanda</option><option value="TG">Togo</option></select><div class="phone-field"><span class="phone-prefix" id="loginPrefix">+243</span><input id="loginPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="Votre numéro de téléphone" required maxlength="15" inputmode="numeric" aria-label="Numéro de téléphone sans indicatif"></div><label>Mot de passe</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Saisissez votre mot de passe" required><button class="auth-submit" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</button></form><p class="auth-help"><i class="fa-solid fa-shield-halved"></i> Votre espace personnel est protégé. Connectez-vous avec votre numéro de téléphone et votre mot de passe.</p><p id="firebaseStatus" class="auth-help" style="margin-top:8px;color:#5b7190"><i class="fa-solid fa-shield-halved"></i> Préparation de votre espace personnel…</p></div></section>
 <header>
  <div class="brand"><div class="logo">G</div><div><div class="brand-name">KDF</div><div class="brand-sub">ESPACE MEMBRE</div></div></div>
  <div class="header-right"><div class="balance-pill" id="topBalance">0 FC</div><button class="logout" onclick="logout()">Se déconnecter</button></div>
@@ -366,6 +366,19 @@ a.action:focus-visible {
 
 <section class="page" id="deposit">
   <h2 class="title"><i class="fa-solid fa-circle-plus"></i> Dépôt</h2>
+  <div class="formbox" id="depositCountryChoice">
+   <p style="font-size:14px;line-height:1.7;margin-bottom:14px"><strong>Depuis quel pays souhaitez-vous effectuer votre dépôt ?</strong><br>Choisissez la procédure qui correspond à votre pays.</p>
+   <button class="primary" type="button" onclick="continueDepositDRC()"><i class="fa-solid fa-flag"></i> Continuer vers la République démocratique du Congo</button>
+   <button type="button" onclick="continueDepositOtherCountries()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#1769aa;color:#fff;font-weight:700"><i class="fa-solid fa-earth-africa"></i> Continuer vers les huit autres pays</button>
+  </div>
+  <div class="formbox" id="depositForeignFlow" style="display:none">
+   <h3 style="margin:0 0 10px;color:var(--blue)">Dépôt depuis un autre pays</h3>
+   <p style="font-size:14px;line-height:1.7">Pour recharger votre compte depuis un pays autre que la République démocratique du Congo, veuillez contacter directement l’administrateur. Le service client vous expliquera la procédure adaptée à votre pays.</p>
+   <div class="note" style="margin:12px 0"><strong>Votre pays :</strong> <span id="depositForeignCountryName">Pays sélectionné</span><br><small>Le message WhatsApp indiquera automatiquement votre pays.</small></div>
+   <a id="depositWhatsAppContact" class="primary" href="https://wa.me/243985345343" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none"><i class="fa-brands fa-whatsapp"></i> Faire les dépôts</a>
+   <button type="button" onclick="backToDepositCountryChoice()" style="width:100%;margin-top:10px;padding:12px;background:#fff;color:var(--blue)">Retour</button>
+  </div>
+  <div id="depositDRCFlow" style="display:none">
   <div class="formbox">
    <div id="depositStepAmount">
     <p style="font-size:13px;line-height:1.6">ÉTAPE 1 SUR 2 — Indiquez le montant de votre dépôt.</p>
@@ -394,6 +407,8 @@ a.action:focus-visible {
    </div>
   </div>
   <div class="note">✨ Votre demande sera ajoutée à votre historique dès son envoi. Elle sera ensuite vérifiée par notre équipe. Votre solde sera mis à jour après confirmation du transfert.</div>
+  <button type="button" onclick="backToDepositCountryChoice()" style="width:100%;margin-top:10px;padding:12px;background:#fff;color:var(--blue)">Retour au choix du pays</button>
+  </div>
  </section>
 
 <section class="page" id="withdraw">
@@ -477,7 +492,7 @@ a.action:focus-visible {
 <section class="page" id="account">
  <h2 class="title"><i class="fa-solid fa-user"></i> Mon compte</h2>
  <div class="profile-card"><i class="fa-solid fa-circle-user"></i><h2 id="displayName">Mon espace KDF</h2><p id="displayPhone">Aucun numéro renseigné</p></div>
- <div class="formbox"><label>Nom complet</label><input id="name" placeholder="Votre nom complet"><label>Numéro de téléphone</label><input id="phone" type="tel" placeholder="Saisissez votre numéro de téléphone"><button class="primary" onclick="saveProfile()">Mettre à jour mon profil</button></div>
+ <div class="formbox"><label>Pays</label><input id="profileCountry" readonly><label>Nom complet</label><input id="name" placeholder="Votre nom complet"><label>Numéro de téléphone</label><input id="phone" type="tel" placeholder="Saisissez votre numéro de téléphone"><button class="primary" onclick="saveProfile()">Mettre à jour mon profil</button></div>
  <h3 class="title"><i class="fa-solid fa-users"></i> Notre communauté</h3>
  <div class="community-card">
   <svg class="community-image" viewBox="0 0 640 250" role="img" aria-label="Illustration de plusieurs membres réunis dans une communauté" xmlns="http://www.w3.org/2000/svg">
@@ -641,7 +656,41 @@ const products=[
 ];
 const initial={balance:0,signupBonus:0,depositStock:0,withdrawStock:0,teamBonus:0,dailyRevenue:0,commissionRevenue:0,requests:[],activeProducts:[],referrals:0,level1Count:0,level2Count:0,level3Count:0};
 let data={...initial};
-function money(n){return Number(n||0).toLocaleString("fr-FR")+" FC"}
+const KDF_COUNTRIES={
+ CD:{name:"République démocratique du Congo",dial:"+243",currency:"CDF",symbol:"FC"},
+ BJ:{name:"Bénin",dial:"+229",currency:"XOF",symbol:"FCFA"},
+ CM:{name:"Cameroun",dial:"+237",currency:"XAF",symbol:"FCFA"},
+ BF:{name:"Burkina Faso",dial:"+226",currency:"XOF",symbol:"FCFA"},
+ CI:{name:"Côte d’Ivoire",dial:"+225",currency:"XOF",symbol:"FCFA"},
+ GA:{name:"Gabon",dial:"+241",currency:"XAF",symbol:"FCFA"},
+ SN:{name:"Sénégal",dial:"+221",currency:"XOF",symbol:"FCFA"},
+ RW:{name:"Rwanda",dial:"+250",currency:"RWF",symbol:"FRw"},
+ TG:{name:"Togo",dial:"+228",currency:"XOF",symbol:"FCFA"}
+};
+function selectedCountryCode(which="register"){return document.getElementById(which==="login"?"loginCountry":"regCountry")?.value||currentUser?.countryCode||"CD"}
+function countryInfo(code){return KDF_COUNTRIES[code]||KDF_COUNTRIES.CD}
+function currentCurrency(){return countryInfo(currentUser?.countryCode||selectedCountryCode("register")).symbol}
+function countryChanged(which){
+ const info=countryInfo(selectedCountryCode(which));
+ const prefix=document.getElementById(which==="login"?"loginPrefix":"regPrefix");
+ if(prefix)prefix.textContent=info.dial;
+ const input=document.getElementById(which==="login"?"loginPhone":"regPhone");
+ if(input){input.value="";input.placeholder="Votre numéro de téléphone";}
+ applyCountryLabels(info.symbol);
+}
+function applyCountryLabels(symbol=currentCurrency()){
+ document.querySelectorAll("body *").forEach(el=>{
+  if(el.children.length===0 && el.textContent && /\bFC\b/.test(el.textContent)){
+   if(!el.dataset.currencyBase)el.dataset.currencyBase=el.textContent;
+   el.textContent=el.dataset.currencyBase.replace(/\bFC\b/g,symbol);
+  }
+  if(el.placeholder && /\bFC\b/.test(el.placeholder)){
+   if(!el.dataset.currencyPlaceholder)el.dataset.currencyPlaceholder=el.placeholder;
+   el.placeholder=el.dataset.currencyPlaceholder.replace(/\bFC\b/g,symbol);
+  }
+ });
+}
+function money(n){return Number(n||0).toLocaleString("fr-FR")+" "+currentCurrency()}
 function userDataKey(){return currentUser?"kdf_demo_data_"+currentUser.phone:"kdf_demo_data"}
 // Le stockage local sert uniquement de cache de démonstration. Il ne doit jamais
 // empêcher l'ouverture de la session Firebase si le quota du navigateur est plein.
@@ -782,6 +831,33 @@ function kdfClearOperationKey(type){
  const storageKey='kdf_pending_operation_'+(currentUser?.uid||'guest')+'_'+type;
  try{sessionStorage.removeItem(storageKey);}catch(e){}
  if(window.kdfMemoryOperationKeys)delete window.kdfMemoryOperationKeys[storageKey];
+}
+function getDepositCountryCode(){return currentUser?.countryCode||data?.profile?.countryCode||"CD";}
+function continueDepositDRC(){
+ const code=getDepositCountryCode();
+ if(code!=="CD"){
+  kdfNotify("Votre compte est enregistré dans un autre pays. Utilisez la procédure des huit autres pays.","error");
+  continueDepositOtherCountries();
+  return;
+ }
+ document.getElementById("depositCountryChoice").style.display="none";
+ document.getElementById("depositForeignFlow").style.display="none";
+ document.getElementById("depositDRCFlow").style.display="block";
+}
+function continueDepositOtherCountries(){
+ const code=getDepositCountryCode(),info=countryInfo(code);
+ const countryName=info.name;
+ document.getElementById("depositCountryChoice").style.display="none";
+ document.getElementById("depositDRCFlow").style.display="none";
+ document.getElementById("depositForeignFlow").style.display="block";
+ document.getElementById("depositForeignCountryName").textContent=countryName;
+ const message="Bonjour, je souhaite effectuer un dépôt sur KDF. Je suis de " + countryName + ". Je voudrais recharger mon compte, mais je ne connais pas encore la procédure. Pouvez-vous m’expliquer comment faire ? Merci.";
+ document.getElementById("depositWhatsAppContact").href="https://wa.me/243985345343?text="+encodeURIComponent(message);
+}
+function backToDepositCountryChoice(){
+ document.getElementById("depositCountryChoice").style.display="block";
+ document.getElementById("depositForeignFlow").style.display="none";
+ document.getElementById("depositDRCFlow").style.display="none";
 }
 function showDepositPayment(){const amount=Number(document.getElementById("depositAmount").value);if(!Number.isFinite(amount)||amount<=0){kdfNotify("Veuillez entrer un montant valide en FC.");return}document.getElementById("depositChosenAmount").textContent=money(amount);document.getElementById("depositStepAmount").style.display="none";document.getElementById("depositStepPayment").style.display="block"}
 function backToDepositAmount(){document.getElementById("depositStepPayment").style.display="none";document.getElementById("depositStepAmount").style.display="block"}
@@ -964,7 +1040,7 @@ function update(){
  renderTeam();renderTeamMembers();renderRequests();save();
 }
 function saveProfile(){if(!currentUser)return;const name=document.getElementById("name").value.trim();if(!name){kdfNotify("Veuillez saisir votre nom.");return}currentUser.name=name;showProfile();if(window.kdfSaveCloudProfile)window.kdfSaveCloudProfile({name});kdfNotify("Votre profil a été mis à jour.")}
-function showProfile(){const name=currentUser?.name||"Mon espace KDF",phone=currentUser?.phone||"Aucun numéro renseigné";document.getElementById("name").value=currentUser?.name||"";document.getElementById("phone").value=phone;document.getElementById("phone").readOnly=true;document.getElementById("displayName").textContent=name;document.getElementById("displayPhone").textContent=phone}
+function showProfile(){const name=currentUser?.name||"Mon espace KDF",phone=currentUser?.phone||"Aucun numéro renseigné",country=countryInfo(currentUser?.countryCode||"CD");const countryField=document.getElementById("profileCountry");if(countryField)countryField.value=country.name+" ("+country.currency+")";document.getElementById("name").value=currentUser?.name||"";document.getElementById("phone").value=phone;document.getElementById("phone").readOnly=true;document.getElementById("displayName").textContent=name;document.getElementById("displayPhone").textContent=phone}
 
 // Liste des membres : à alimenter avec les documents utilisateurs de Firebase.
 let teamMembers = [];
@@ -1039,7 +1115,7 @@ function renderTeam(){
 // Authentification Firebase : numéro + mot de passe via Email/Password.
 // Le numéro est converti en identifiant e-mail technique, sans demander d'adresse e-mail.
 let currentUser=null;
-function normalizePhone(v){let digits=String(v||'').replace(/\D/g,'');if(digits.startsWith('243'))digits=digits.slice(3);if(digits.startsWith('0')&&digits.length===10)digits=digits.slice(1);return '+243'+digits}
+function normalizePhone(v,code="CD"){const dial=countryInfo(code).dial;let digits=String(v||'').replace(/\D/g,'');const dialDigits=dial.replace(/\D/g,'');if(digits.startsWith(dialDigits))digits=digits.slice(dialDigits.length);if(digits.startsWith('0'))digits=digits.slice(1);return dial+digits}
 function setAuthLoading(formId,loading,label){const form=document.getElementById(formId);if(!form)return;const button=form.querySelector('.auth-submit');if(!button)return;if(loading){button.disabled=true;if(!button.dataset.original)button.dataset.original=button.innerHTML;button.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> '+label}else{button.disabled=false;if(button.dataset.original){button.innerHTML=button.dataset.original;delete button.dataset.original}}}
 function waitForTransition(){return new Promise(resolve=>setTimeout(resolve,850))}
 function showAuthMessage(message,success=false){const box=document.getElementById('authMessage');box.textContent=message;box.style.display='block';box.classList.toggle('auth-success',success)}
@@ -1063,9 +1139,9 @@ function authErrorMessage(error){const code=error&&error.code||'';const map={
  'permission-denied':'L’accès à votre espace n’a pas pu être confirmé. Veuillez réessayer ou contacter le service client.',
  'unavailable':'Le service est temporairement indisponible. Veuillez réessayer dans quelques instants.'
  };return map[code]||'La connexion n’a pas abouti. Vérifiez votre numéro, votre mot de passe et votre connexion Internet, puis réessayez.'}
-function registerUser(event){event.preventDefault();if(document.querySelector('#registerForm .auth-submit').disabled)return;hideAuthMessage();const name=document.getElementById('regName').value.trim(),phone=normalizePhone(document.getElementById('regPhone').value),password=document.getElementById('regPassword').value,password2=document.getElementById('regPassword2').value,ref=document.getElementById('regReferral').value.trim().toUpperCase();if(name.length<2||phone.replace(/\D/g,'').length!==12){showAuthMessage('Veuillez saisir un numéro congolais valide de 9 chiffres après +243.');return}if(password.length<6){showAuthMessage('Le mot de passe doit contenir au moins 6 caractères.');return}if(password!==password2){showAuthMessage('Les deux mots de passe ne correspondent pas.');return}setAuthLoading('registerForm',true,'Création du compte...');if(!window.kdfFirebaseRegister){showAuthMessage('Votre espace est en cours de préparation. Réessayez dans un instant.');setAuthLoading('registerForm',false);return}Promise.resolve().then(()=>window.kdfFirebaseRegister({name,phone,password,ref})).catch(e=>{console.error('Inscription KDF :',e);showAuthMessage(authErrorMessage(e));setAuthLoading('registerForm',false)})}
-function loginUser(event){event.preventDefault();if(document.querySelector('#loginForm .auth-submit').disabled)return;hideAuthMessage();const phone=normalizePhone(document.getElementById('loginPhone').value),password=document.getElementById('loginPassword').value;if(phone.replace(/\D/g,'').length!==12||!password){showAuthMessage('Saisissez votre numéro congolais de 9 chiffres après +243 et votre mot de passe.');return}setAuthLoading('loginForm',true,'Connexion...');if(!window.kdfFirebaseLogin){showAuthMessage('Votre espace est en cours de préparation. Réessayez dans un instant.');setAuthLoading('loginForm',false);return}Promise.resolve().then(()=>window.kdfFirebaseLogin({phone,password})).catch(e=>{console.error('Connexion KDF :',e);showAuthMessage(authErrorMessage(e));setAuthLoading('loginForm',false)})}
-function startMemberArea(){document.body.classList.add('logged-in');processDueProductPayments();renderProducts();update();showProfile();renderActiveProducts();renderTeam();go('home');window.scrollTo(0,0)}
+function registerUser(event){event.preventDefault();if(document.querySelector('#registerForm .auth-submit').disabled)return;hideAuthMessage();const name=document.getElementById('regName').value.trim(),countryCode=selectedCountryCode('register'),phone=normalizePhone(document.getElementById('regPhone').value,countryCode),password=document.getElementById('regPassword').value,password2=document.getElementById('regPassword2').value,ref=document.getElementById('regReferral').value.trim().toUpperCase();if(name.length<2||phone.replace(/\D/g,'').length<9){showAuthMessage('Veuillez saisir un numéro de téléphone valide pour le pays sélectionné.');return}if(password.length<6){showAuthMessage('Le mot de passe doit contenir au moins 6 caractères.');return}if(password!==password2){showAuthMessage('Les deux mots de passe ne correspondent pas.');return}setAuthLoading('registerForm',true,'Création du compte...');if(!window.kdfFirebaseRegister){showAuthMessage('Votre espace est en cours de préparation. Réessayez dans un instant.');setAuthLoading('registerForm',false);return}Promise.resolve().then(()=>window.kdfFirebaseRegister({name,phone,password,ref,countryCode})).catch(e=>{console.error('Inscription KDF :',e);showAuthMessage(authErrorMessage(e));setAuthLoading('registerForm',false)})}
+function loginUser(event){event.preventDefault();if(document.querySelector('#loginForm .auth-submit').disabled)return;hideAuthMessage();const countryCode=selectedCountryCode('login'),phone=normalizePhone(document.getElementById('loginPhone').value,countryCode),password=document.getElementById('loginPassword').value;if(phone.replace(/\D/g,'').length<9||!password){showAuthMessage('Saisissez un numéro valide pour le pays sélectionné et votre mot de passe.');return}setAuthLoading('loginForm',true,'Connexion...');if(!window.kdfFirebaseLogin){showAuthMessage('Votre espace est en cours de préparation. Réessayez dans un instant.');setAuthLoading('loginForm',false);return}Promise.resolve().then(()=>window.kdfFirebaseLogin({phone,password,countryCode})).catch(e=>{console.error('Connexion KDF :',e);showAuthMessage(authErrorMessage(e));setAuthLoading('loginForm',false)})}
+function startMemberArea(){document.body.classList.add('logged-in');applyCountryLabels();processDueProductPayments();renderProducts();update();showProfile();renderActiveProducts();renderTeam();go('home');window.scrollTo(0,0)}
 async function logout(){if(!await kdfConfirm('Voulez-vous vous déconnecter de votre espace KDF ?','Déconnexion'))return;if(window.kdfFlushCloudSave)await window.kdfFlushCloudSave();if(window.kdfFirebaseLogout)window.kdfFirebaseLogout().catch(e=>showAuthMessage(authErrorMessage(e)));}
 window.kdfSetMember=function(profile,uid,accountData){currentUser={...profile,id:uid,uid};data={...window.kdfDefaultAccountData(),...(accountData||{})};if(!Array.isArray(data.requests))data.requests=[];if(!Array.isArray(data.activeProducts))data.activeProducts=[];try{if(profile.phone)localStorage.setItem('kdf_last_phone',profile.phone)}catch(e){}try{startMemberArea()}catch(error){console.error('Erreur interface membre:',error);document.body.classList.add('logged-in');go('home');}};
 window.kdfClearMember=function(){currentUser=null;if(window.kdfClearCloudSession)window.kdfClearCloudSession();document.body.classList.remove('logged-in');showAuthForm('login');document.getElementById('loginPassword').value='';setAuthLoading('registerForm',false);setAuthLoading('loginForm',false);};
@@ -1188,7 +1264,7 @@ window.kdfSaveCloudProfile=(changes)=>{
  setDoc(doc(db,'users',activeUid),{...changes,updatedAt:serverTimestamp()},{merge:true})
   .catch(error=>{console.error('Mise à jour du profil impossible :',error);if(window.kdfNotify)window.kdfNotify('Impossible de synchroniser le profil. Vérifiez votre connexion.','error');});
 };
-window.kdfFirebaseRegister=async({name,phone,password,ref})=>{
+window.kdfFirebaseRegister=async({name,phone,password,ref,countryCode='CD'})=>{
  let credential=null;
  creatingProfile=true;
  try{
@@ -1208,7 +1284,7 @@ window.kdfFirebaseRegister=async({name,phone,password,ref})=>{
   const parentUid=sponsor?.uid||null;
   const grandparentUid=sponsor?.parentUid||null;
   const greatGrandparentUid=sponsor?.grandparentUid||null;
-  const profile={uid,name,phone,referralCode,referredByCode:ref||null,referredByUid:parentUid,referredByParentUid:grandparentUid,createdAt:serverTimestamp(),createdAtISO:new Date().toISOString()};
+  const profile={uid,name,phone,countryCode,currency:countryInfo(countryCode).currency,referralCode,referredByCode:ref||null,referredByUid:parentUid,referredByParentUid:grandparentUid,createdAt:serverTimestamp(),createdAtISO:new Date().toISOString()};
   // Bonus de bienvenue : 3 000 FC crédités une seule fois au nouveau compte.
   // L'opération est aussi ajoutée à l'historique personnel de ce membre.
   const bonusDate=new Date().toLocaleString("fr-FR");
